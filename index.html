@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Moon White &amp; Star Purple · Meal Buddy Snack Catch</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+    :root {
+      --moon-white: #F7F5FF;
+      --moon-tint: #EDE9FE;
+      --star-purple: #8B5CF6;
+      --star-deep: #5B21B6;
+      --star-dark: #2E1065;
+      --star-glow: #C4B5FD;
+      --gold-accent: #FBBF24;
+      --pink-accent: #F472B6;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top left, #FDFBFF 0%, #EDE9FE 38%, #DDD6FE 72%, #C4B5FD 100%);
+      color: var(--star-dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(167, 139, 250, 0.35);
+      box-shadow: 0 12px 36px rgba(91, 33, 182, 0.12);
+    }
+
+    .star-btn {
+      background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+      color: #FFFFFF;
+      box-shadow: 0 6px 18px rgba(109, 40, 217, 0.32);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    }
+
+    .star-btn:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .star-btn:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .canvas-shell {
+      position: relative;
+      width: 100%;
+      height: 440px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid rgba(139, 92, 246, 0.35);
+      background: linear-gradient(180deg, #1E1145 0%, #3B1F7A 45%, #6D42B8 80%, #DDD6FE 100%);
+      box-shadow: inset 0 0 40px rgba(196, 181, 253, 0.25), 0 14px 32px rgba(46, 16, 101, 0.18);
+      touch-action: none;
+    }
+
+    @media (max-width: 640px) {
+      .canvas-shell {
+        height: 390px;
+      }
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .character-pill {
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    .character-pill.active {
+      border-color: #7C3AED;
+      background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.2);
+    }
+
+    .touch-pad-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1.5px solid rgba(139, 92, 246, 0.35);
+      box-shadow: 0 4px 12px rgba(91, 33, 182, 0.12);
+      transition: transform 0.1s ease, background 0.1s ease;
+    }
+
+    .touch-pad-btn:active {
+      transform: scale(0.95);
+      background: #EDE9FE;
+    }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #2E1065;
+      color: #F7F5FF;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 60;
+      box-shadow: 0 8px 24px rgba(46, 16, 101, 0.35);
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body class="py-4 px-3 sm:px-6 flex flex-col items-center justify-center">
+  <div class="w-full max-w-2xl space-y-3">
+    <!-- Top Header -->
+    <header class="glass-card rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-white text-lg shadow-sm">
+          ✨
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-purple-950 leading-tight">
+            Meal Buddy · Eat Well Challenge
+          </h1>
+          <p class="text-xs text-purple-700 font-medium">Moon White &amp; Star Purple · Fan Club Mini-Game</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="rankBtn" type="button" class="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 text-xs font-bold transition">
+          🏆 Leaderboard
+        </button>
+        <button id="bgmBtn" type="button" class="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 text-xs font-bold transition">
+          🎵 BGM On
+        </button>
+        <button id="soundBtn" type="button" class="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 text-xs font-bold transition">
+          🔊 SFX On
+        </button>
+      </div>
+    </header>
+
+    <!-- HUD Bar -->
+    <div class="grid grid-cols-4 gap-2">
+      <div class="glass-card rounded-2xl px-3 py-2 text-center">
+        <div class="text-[11px] font-semibold text-purple-600">Score</div>
+        <div id="scoreVal" class="text-lg sm:text-xl font-black text-purple-950">0</div>
+      </div>
+      <div class="glass-card rounded-2xl px-3 py-2 text-center">
+        <div class="text-[11px] font-semibold text-purple-600">Combo</div>
+        <div id="comboVal" class="text-lg sm:text-xl font-black text-amber-500">x1</div>
+      </div>
+      <div class="glass-card rounded-2xl px-3 py-2 text-center">
+        <div class="text-[11px] font-semibold text-purple-600">Time Left</div>
+        <div id="timeVal" class="text-lg sm:text-xl font-black text-purple-900">60s</div>
+      </div>
+      <div class="glass-card rounded-2xl px-3 py-2 text-center">
+        <div class="text-[11px] font-semibold text-purple-600">Hearts</div>
+        <div id="livesVal" class="text-base sm:text-lg font-bold tracking-wider">❤️❤️❤️</div>
+      </div>
+    </div>
+
+    <!-- Main Game Canvas Area -->
+    <div class="canvas-shell" id="canvasShell">
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Start Overlay -->
+      <div id="startOverlay" class="absolute inset-0 bg-purple-950/75 backdrop-blur-sm flex items-center justify-center p-4 z-20">
+        <div class="bg-white/95 rounded-3xl p-5 sm:p-6 max-w-md w-full text-center space-y-4 shadow-2xl border border-purple-200">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-bold">
+            💜 Moon White &amp; Star Purple Fan Event
+          </div>
+          <h2 class="text-xl sm:text-2xl font-black text-purple-950">Pick Your Meal Buddy &amp; Dig In!</h2>
+          <p class="text-xs sm:text-sm text-purple-700 leading-relaxed">
+            Catch falling <strong>Cookies, Onigiri, Cake &amp; Star Purple Lightsticks</strong> for high scores, and dodge <strong>Spicy Chilies</strong> &amp; <strong>Empty-Stomach Alarms</strong>!
+          </p>
+
+          <!-- Nickname Input -->
+          <div class="text-left">
+            <label for="nicknameInput" class="block text-xs font-bold text-purple-800 mb-1">Fan Nickname (for Fan Club Check-in)</label>
+            <input id="nicknameInput" type="text" maxlength="16" placeholder="e.g. MoonBalloon"
+              class="w-full px-3.5 py-2 rounded-xl border border-purple-200 bg-purple-50/60 text-sm text-purple-950 font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500" />
+          </div>
+
+          <!-- Character Select -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" data-char="white" class="character-pill active rounded-2xl p-3 bg-purple-50/70 flex flex-col items-center gap-1">
+              <span class="text-2xl">🤍</span>
+              <span class="text-xs font-extrabold text-purple-950">White Buddy</span>
+              <span class="text-[11px] text-purple-600">Soft Moon White</span>
+            </button>
+            <button type="button" data-char="black" class="character-pill rounded-2xl p-3 bg-purple-50/70 flex flex-col items-center gap-1">
+              <span class="text-2xl">🖤</span>
+              <span class="text-xs font-extrabold text-purple-950">Black Buddy</span>
+              <span class="text-[11px] text-purple-600">Sweet Star Purple</span>
+            </button>
+          </div>
+
+          <button id="startBtn" type="button" class="star-btn w-full py-3 rounded-2xl font-extrabold text-base tracking-wide">
+            ✨ Start 60s Challenge
+          </button>
+        </div>
+      </div>
+
+      <!-- Fever Banner (Non-blocking) -->
+      <div id="feverBanner" class="hidden absolute top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 via-pink-400 to-purple-500 text-white text-xs font-black shadow-lg pointer-events-none z-10 animate-pulse">
+        🌟 Star Purple Fever! 2x Bonus Points Active!
+      </div>
+
+      <!-- Game Over Overlay -->
+      <div id="gameOverOverlay" class="hidden absolute inset-0 bg-purple-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-20">
+        <div class="bg-white/95 rounded-3xl p-5 sm:p-6 max-w-md w-full text-center space-y-3.5 shadow-2xl border border-purple-200">
+          <div id="resultBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-bold">
+            🎉 Challenge Complete
+          </div>
+          <h2 id="resultTitle" class="text-xl sm:text-2xl font-black text-purple-950">Full &amp; Happy!</h2>
+
+          <div class="grid grid-cols-3 gap-2 bg-purple-50 rounded-2xl p-3 border border-purple-100">
+            <div>
+              <div class="text-[11px] text-purple-600 font-semibold">Final Score</div>
+              <div id="finalScore" class="text-xl font-black text-purple-950">0</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-purple-600 font-semibold">Max Combo</div>
+              <div id="finalCombo" class="text-xl font-black text-amber-500">0</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-purple-600 font-semibold">Fan Rank</div>
+              <div id="finalRank" class="text-xs font-extrabold text-purple-800 mt-1">Snack Rookie</div>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button id="copyShareBtn" type="button" class="flex-1 py-2.5 px-4 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-sm transition">
+              📋 Copy Result
+            </button>
+            <button id="restartBtn" type="button" class="star-btn flex-1 py-2.5 px-4 rounded-xl font-bold text-sm">
+              🔄 Play Again
+            </button>
+          </div>
+          <button id="backHomeBtn" type="button" class="text-xs text-purple-600 hover:text-purple-900 font-semibold underline">
+            Switch Buddy / Edit Nickname
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Controls & Legend -->
+    <div class="glass-card rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
+        <button id="leftBtn" type="button" class="touch-pad-btn flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-purple-900 text-sm">
+          ⬅️ Left
+        </button>
+        <button id="pauseBtn" type="button" class="touch-pad-btn px-4 py-2.5 rounded-xl font-bold text-purple-800 text-xs">
+          ⏸ Pause
+        </button>
+        <button id="rightBtn" type="button" class="touch-pad-btn flex-1 sm:flex-none px-6 py-2.5 rounded-xl font-extrabold text-purple-900 text-sm">
+          Right ➡️
+        </button>
+      </div>
+
+      <div class="text-[11px] sm:text-xs text-purple-800 font-medium text-center sm:text-right leading-relaxed">
+        🍪 +10 &nbsp;|&nbsp; 🍙 +20 &nbsp;|&nbsp; 🍰 +30 &nbsp;|&nbsp; 💜 2x Fever +50 &nbsp;|&nbsp; 🌶️⏰ Dodge!
+        <div class="text-[10px] text-purple-600">Use Arrow Keys / A D, or drag with mouse or touch</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Modal -->
+  <div id="rankModal" class="hidden fixed inset-0 bg-purple-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl p-5 max-w-md w-full shadow-2xl border border-purple-200 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-black text-purple-950">🏆 Fan Club Leaderboard</h3>
+        <button id="closeRankBtn" type="button" class="w-8 h-8 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold text-sm">✕</button>
+      </div>
+      <p class="text-xs text-purple-600">Your top local scores are saved here. Screenshot or copy your result to join the fan club check-in!</p>
+      <div id="rankList" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast-msg"></div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = 'mjq_fandazi_leaderboard_v1';
+      const DEFAULT_LEADERBOARD = [
+        { name: 'MoonStarOcean', char: 'white', score: 980, combo: 18 },
+        { name: 'PurpleCookie', char: 'black', score: 820, combo: 14 },
+        { name: 'EatWellCaptain', char: 'white', score: 650, combo: 11 }
+      ];
+
+      // DOM elements
+      const canvasShell = document.getElementById('canvasShell');
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+
+      const scoreVal = document.getElementById('scoreVal');
+      const comboVal = document.getElementById('comboVal');
+      const timeVal = document.getElementById('timeVal');
+      const livesVal = document.getElementById('livesVal');
+
+      const startOverlay = document.getElementById('startOverlay');
+      const gameOverOverlay = document.getElementById('gameOverOverlay');
+      const feverBanner = document.getElementById('feverBanner');
+
+      const nicknameInput = document.getElementById('nicknameInput');
+      const charButtons = document.querySelectorAll('.character-pill');
+      const startBtn = document.getElementById('startBtn');
+      const restartBtn = document.getElementById('restartBtn');
+      const backHomeBtn = document.getElementById('backHomeBtn');
+      const copyShareBtn = document.getElementById('copyShareBtn');
+      const bgmBtn = document.getElementById('bgmBtn');
+      const soundBtn = document.getElementById('soundBtn');
+      const pauseBtn = document.getElementById('pauseBtn');
+      const leftBtn = document.getElementById('leftBtn');
+      const rightBtn = document.getElementById('rightBtn');
+
+      const rankBtn = document.getElementById('rankBtn');
+      const rankModal = document.getElementById('rankModal');
+      const closeRankBtn = document.getElementById('closeRankBtn');
+      const rankList = document.getElementById('rankList');
+
+      const finalScoreEl = document.getElementById('finalScore');
+      const finalComboEl = document.getElementById('finalCombo');
+      const finalRankEl = document.getElementById('finalRank');
+      const resultTitleEl = document.getElementById('resultTitle');
+      const toastEl = document.getElementById('toast');
+
+      // Audio Synthesizer (Web Audio API)
+      let audioCtx = null;
+      let soundEnabled = true;
+      let bgmEnabled = true;
+      let bgmTimer = null;
+      let bgmStep = 0;
+
+      // Cheerful 16-step pop loop (C - G - Am - F feel)
+      const BGM_MELODY = [
+        523.25, 659.25, 783.99, 659.25,
+        587.33, 783.99, 880.00, 783.99,
+        659.25, 880.00, 1046.50, 880.00,
+        698.46, 880.00, 783.99, 659.25
+      ];
+      const BGM_BASS = [
+        261.63, 261.63, 196.00, 196.00,
+        220.00, 220.00, 174.61, 174.61,
+        261.63, 261.63, 196.00, 196.00,
+        174.61, 174.61, 196.00, 196.00
+      ];
+
+      function playBgmNote(freq, duration, type, gainVal) {
+        const ac = ensureAudio();
+        if (!ac || !bgmEnabled) return;
+        const now = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function startBgm() {
+        stopBgm();
+        if (!bgmEnabled) return;
+        ensureAudio();
+        bgmTimer = setInterval(() => {
+          if (state.status !== 'playing' || !bgmEnabled) return;
+          const idx = bgmStep % BGM_MELODY.length;
+          const melFreq = BGM_MELODY[idx] * (state.feverTimer > 0 ? 1.122 : 1);
+          const bassFreq = BGM_BASS[idx];
+          playBgmNote(melFreq, 0.2, 'triangle', 0.055);
+          if (idx % 2 === 0) {
+            playBgmNote(bassFreq, 0.28, 'sine', 0.05);
+          }
+          bgmStep += 1;
+        }, 230);
+      }
+
+      function stopBgm() {
+        if (bgmTimer) {
+          clearInterval(bgmTimer);
+          bgmTimer = null;
+        }
+      }
+
+      function ensureAudio() {
+        if (!soundEnabled && !bgmEnabled) return null;
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playTone(freq, duration, type = 'sine', gainVal = 0.14, delay = 0) {
+        const ac = ensureAudio();
+        if (!ac || !soundEnabled) return;
+        const now = ac.currentTime + delay;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      function playCatchSound(comboCount) {
+        const base = 523.25; // C5
+        const step = Math.min(comboCount, 12);
+        const freq = base * Math.pow(1.059463, step);
+        playTone(freq, 0.12, 'triangle', 0.16, 0);
+        playTone(freq * 1.25, 0.14, 'sine', 0.1, 0.05);
+      }
+
+      function playFeverSound() {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((n, idx) => playTone(n, 0.18, 'triangle', 0.15, idx * 0.06));
+      }
+
+      function playHitSound() {
+        playTone(180, 0.18, 'sawtooth', 0.14, 0);
+        playTone(120, 0.22, 'square', 0.11, 0.08);
+      }
+
+      function playEndSound() {
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((n, idx) => playTone(n, 0.22, 'sine', 0.14, idx * 0.09));
+      }
+
+      // Game State
+      let width = 600;
+      let height = 440;
+      let dpr = 1;
+      let animId = null;
+      let lastTime = 0;
+
+      const state = {
+        status: 'idle', // 'idle' | 'playing' | 'paused' | 'gameover'
+        selectedChar: 'white', // 'white' | 'black'
+        nickname: 'MoonBalloon',
+        score: 0,
+        combo: 0,
+        maxCombo: 0,
+        lives: 3,
+        timeLeft: 60,
+        feverTimer: 0,
+        shakeTimer: 0,
+        spawnTimer: 0,
+        player: {
+          x: 300,
+          y: 380,
+          radius: 30,
+          vx: 0,
+          speed: 440,
+          mood: 'happy', // 'happy' | 'eat' | 'dizzy'
+          moodTimer: 0,
+          bounce: 0
+        },
+        items: [],
+        particles: [],
+        popups: [],
+        stars: []
+      };
+
+      const keys = { left: false, right: false };
+      let pointerActive = false;
+      let pointerTargetX = null;
+
+      // Item definitions
+      const ITEM_TYPES = [
+        { kind: 'cookie', emoji: '🍪', label: 'Cookie', points: 10, weight: 38, speed: 155, good: true },
+        { kind: 'onigiri', emoji: '🍙', label: 'Onigiri', points: 20, weight: 25, speed: 180, good: true },
+        { kind: 'cake', emoji: '🍰', label: 'Cake', points: 30, weight: 14, speed: 205, good: true },
+        { kind: 'lightstick', emoji: '💜', label: 'Lightstick', points: 50, weight: 7, speed: 230, good: true, fever: true },
+        { kind: 'chili', emoji: '🌶️', label: 'Chili', points: 0, weight: 10, speed: 210, good: false },
+        { kind: 'alarm', emoji: '⏰', label: 'Alarm', points: 0, weight: 6, speed: 225, good: false }
+      ];
+
+      function initStars() {
+        state.stars = [];
+        for (let i = 0; i < 48; i++) {
+          state.stars.push({
+            x: Math.random() * width,
+            y: Math.random() * (height * 0.78),
+            r: 1 + Math.random() * 2.2,
+            phase: Math.random() * Math.PI * 2,
+            speed: 1.5 + Math.random() * 2
+          });
+        }
+      }
+
+      function resizeCanvas() {
+        const rect = canvasShell.getBoundingClientRect();
+        width = Math.max(280, Math.floor(rect.width));
+        height = Math.max(300, Math.floor(rect.height));
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        state.player.y = height - 54;
+        if (state.player.x > width - 36) state.player.x = width - 36;
+        if (state.player.x < 36) state.player.x = 36;
+        initStars();
+        render();
+      }
+
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(showToast._tid);
+        showToast._tid = setTimeout(() => toastEl.classList.remove('show'), 2200);
+      }
+
+      function getRankTitle(score) {
+        if (score >= 900) return 'Star Purple Champion';
+        if (score >= 650) return 'Super Meal Buddy';
+        if (score >= 400) return 'Cookie Guardian';
+        if (score >= 200) return 'Happy Balloon';
+        return 'Snack Rookie';
+      }
+
+      function updateHUD() {
+        scoreVal.textContent = state.score;
+        const mult = state.feverTimer > 0 ? 2 : Math.min(4, 1 + Math.floor(state.combo / 5));
+        comboVal.textContent = `x${mult}`;
+        timeVal.textContent = `${Math.ceil(state.timeLeft)}s`;
+        livesVal.textContent = state.lives > 0 ? '❤️'.repeat(state.lives) : '💔';
+        if (state.feverTimer > 0) {
+          feverBanner.classList.remove('hidden');
+        } else {
+          feverBanner.classList.add('hidden');
+        }
+      }
+
+      function spawnItem() {
+        const totalWeight = ITEM_TYPES.reduce((acc, it) => acc + it.weight, 0);
+        let r = Math.random() * totalWeight;
+        let picked = ITEM_TYPES[0];
+        for (const item of ITEM_TYPES) {
+          r -= item.weight;
+          if (r <= 0) {
+            picked = item;
+            break;
+          }
+        }
+
+        const timeFactor = 1 + (60 - state.timeLeft) * 0.008;
+        state.items.push({
+          ...picked,
+          x: 28 + Math.random() * (width - 56),
+          y: -26,
+          radius: 20,
+          vy: picked.speed * timeFactor,
+          wobble: Math.random() * Math.PI * 2
+        });
+      }
+
+      function addBurst(x, y, color, count = 12) {
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+          const spd = 70 + Math.random() * 140;
+          state.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd - 30,
+            life: 0.45 + Math.random() * 0.25,
+            maxLife: 0.7,
+            r: 3 + Math.random() * 3.5,
+            color
+          });
+        }
+      }
+
+      function addPopup(x, y, text, color) {
+        state.popups.push({
+          x,
+          y,
+          text,
+          color,
+          life: 0.85,
+          maxLife: 0.85
+        });
+      }
+
+      function startGame() {
+        ensureAudio();
+        playTone(659.25, 0.12, 'triangle', 0.15, 0);
+        playTone(880, 0.16, 'triangle', 0.15, 0.08);
+
+        const rawName = nicknameInput.value.trim();
+        state.nickname = rawName || 'MoonBalloon';
+        state.status = 'playing';
+        state.score = 0;
+        state.combo = 0;
+        state.maxCombo = 0;
+        state.lives = 3;
+        state.timeLeft = 60;
+        state.feverTimer = 0;
+        state.shakeTimer = 0;
+        state.spawnTimer = 0.2;
+        state.items = [];
+        state.particles = [];
+        state.popups = [];
+        state.player.x = width / 2;
+        state.player.mood = 'happy';
+        state.player.moodTimer = 0;
+
+        startOverlay.classList.add('hidden');
+        gameOverOverlay.classList.add('hidden');
+        pauseBtn.textContent = '⏸ Pause';
+        bgmStep = 0;
+        startBgm();
+        updateHUD();
+      }
+
+      function endGame(reason) {
+        state.status = 'gameover';
+        stopBgm();
+        playEndSound();
+        updateHUD();
+
+        const rank = getRankTitle(state.score);
+        finalScoreEl.textContent = state.score;
+        finalComboEl.textContent = state.maxCombo;
+        finalRankEl.textContent = rank;
+        resultTitleEl.textContent = reason === 'lives' ? 'Too Spicy! Watch Out Next Time~' : 'Full & Happy! Great Run!';
+
+        saveScore(state.nickname, state.selectedChar, state.score, state.maxCombo);
+        gameOverOverlay.classList.remove('hidden');
+      }
+
+      function loadLeaderboard() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [...DEFAULT_LEADERBOARD];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) && parsed.length ? parsed : [...DEFAULT_LEADERBOARD];
+        } catch (e) {
+          return [...DEFAULT_LEADERBOARD];
+        }
+      }
+
+      function saveScore(name, char, score, combo) {
+        try {
+          const list = loadLeaderboard();
+          list.push({ name, char, score, combo });
+          list.sort((a, b) => b.score - a.score);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 10)));
+        } catch (e) {
+          // Ignore storage error in restricted environments
+        }
+      }
+
+      function renderLeaderboard() {
+        const list = loadLeaderboard();
+        rankList.innerHTML = list.map((entry, idx) => {
+          const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+          const avatar = entry.char === 'black' ? '🖤' : '🤍';
+          return `
+            <div class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-purple-50 border border-purple-100">
+              <div class="flex items-center gap-2.5">
+                <span class="text-sm font-black w-6 text-center text-purple-800">${medal}</span>
+                <span class="text-lg">${avatar}</span>
+                <div>
+                  <div class="text-xs font-extrabold text-purple-950">${escapeHtml(entry.name)}</div>
+                  <div class="text-[10px] text-purple-600">Max Combo ${entry.combo}</div>
+                </div>
+              </div>
+              <div class="text-sm font-black text-purple-700">${entry.score} pts</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, (ch) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[ch]));
+      }
+
+      function update(dt) {
+        if (state.status !== 'playing') return;
+
+        // Timer
+        state.timeLeft -= dt;
+        if (state.timeLeft <= 0) {
+          state.timeLeft = 0;
+          endGame('time');
+          return;
+        }
+
+        if (state.feverTimer > 0) state.feverTimer = Math.max(0, state.feverTimer - dt);
+        if (state.shakeTimer > 0) state.shakeTimer = Math.max(0, state.shakeTimer - dt);
+        if (state.player.moodTimer > 0) {
+          state.player.moodTimer -= dt;
+          if (state.player.moodTimer <= 0) state.player.mood = 'happy';
+        }
+
+        // Player movement
+        let moveDir = 0;
+        if (keys.left) moveDir -= 1;
+        if (keys.right) moveDir += 1;
+
+        if (moveDir !== 0) {
+          state.player.x += moveDir * state.player.speed * dt;
+        } else if (pointerActive && pointerTargetX !== null) {
+          const diff = pointerTargetX - state.player.x;
+          state.player.x += diff * Math.min(1, dt * 16);
+        }
+
+        const margin = state.player.radius + 8;
+        state.player.x = Math.max(margin, Math.min(width - margin, state.player.x));
+        state.player.bounce += dt * 6;
+
+        // Spawning
+        state.spawnTimer -= dt;
+        if (state.spawnTimer <= 0) {
+          spawnItem();
+          const interval = Math.max(0.32, 0.78 - (60 - state.timeLeft) * 0.007);
+          state.spawnTimer = interval * (0.75 + Math.random() * 0.5);
+        }
+
+        // Items update & collision
+        for (let i = state.items.length - 1; i >= 0; i--) {
+          const it = state.items[i];
+          it.y += it.vy * dt;
+          it.wobble += dt * 3;
+          it.x += Math.sin(it.wobble) * 18 * dt;
+
+          const dx = it.x - state.player.x;
+          const dy = it.y - state.player.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < it.radius + state.player.radius - 4) {
+            state.items.splice(i, 1);
+
+            if (it.good) {
+              state.combo += 1;
+              if (state.combo > state.maxCombo) state.maxCombo = state.combo;
+
+              if (it.fever) {
+                state.feverTimer = 6;
+                playFeverSound();
+                addBurst(it.x, it.y, '#C084FC', 18);
+              } else {
+                playCatchSound(state.combo);
+                addBurst(it.x, it.y, '#FBBF24', 10);
+              }
+
+              const mult = state.feverTimer > 0 ? 2 : Math.min(4, 1 + Math.floor(state.combo / 5));
+              const gained = it.points * mult;
+              state.score += gained;
+              state.player.mood = 'eat';
+              state.player.moodTimer = 0.28;
+              addPopup(it.x, it.y - 12, `+${gained}${mult > 1 ? ' ✨' : ''}`, '#FDE047');
+            } else {
+              state.combo = 0;
+              state.lives -= 1;
+              state.shakeTimer = 0.25;
+              state.player.mood = 'dizzy';
+              state.player.moodTimer = 0.45;
+              playHitSound();
+              addBurst(it.x, it.y, '#FB7185', 14);
+              addPopup(it.x, it.y - 12, 'Ouch! -1❤️', '#FDA4AF');
+
+              if (state.lives <= 0) {
+                endGame('lives');
+                return;
+              }
+            }
+            updateHUD();
+            continue;
+          }
+
+          if (it.y > height + 30) {
+            state.items.splice(i, 1);
+          }
+        }
+
+        // Particles
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const p = state.particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy += 260 * dt;
+          p.life -= dt;
+          if (p.life <= 0) state.particles.splice(i, 1);
+        }
+
+        // Popups
+        for (let i = state.popups.length - 1; i >= 0; i--) {
+          const pop = state.popups[i];
+          pop.y -= 36 * dt;
+          pop.life -= dt;
+          if (pop.life <= 0) state.popups.splice(i, 1);
+        }
+
+        updateHUD();
+      }
+
+      function drawFandazi(x, y, radius, charType, mood) {
+        const isBlack = charType === 'black';
+        const bodyColor = isBlack ? '#241B35' : '#FAF8FF';
+        const outlineColor = isBlack ? '#A78BFA' : '#7C3AED';
+        const earInner = isBlack ? '#8B5CF6' : '#DDD6FE';
+        const bobY = Math.sin(state.player.bounce) * 2.5;
+
+        ctx.save();
+        ctx.translate(x, y + bobY);
+
+        // Soft Moon-White / Star-Purple aura
+        const aura = ctx.createRadialGradient(0, 0, radius * 0.4, 0, 0, radius * 1.45);
+        aura.addColorStop(0, state.feverTimer > 0 ? 'rgba(251, 191, 36, 0.45)' : 'rgba(196, 181, 253, 0.38)');
+        aura.addColorStop(1, 'rgba(196, 181, 253, 0)');
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 1.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Little plushie ears
+        [-1, 1].forEach((side) => {
+          ctx.fillStyle = bodyColor;
+          ctx.strokeStyle = outlineColor;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(side * (radius * 0.62), -radius * 0.68, radius * 0.34, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = earInner;
+          ctx.beginPath();
+          ctx.arc(side * (radius * 0.62), -radius * 0.68, radius * 0.16, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Chubby dumpling body
+        ctx.fillStyle = bodyColor;
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, 2, radius * 1.02, radius * 0.9, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Purple star hairpin
+        ctx.fillStyle = '#A855F7';
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('★', 0, -radius * 0.72);
+
+        // Cheeks
+        ctx.fillStyle = isBlack ? 'rgba(244, 114, 182, 0.45)' : 'rgba(244, 114, 182, 0.55)';
+        ctx.beginPath();
+        ctx.ellipse(-14, 5, 5.5, 3.2, 0, 0, Math.PI * 2);
+        ctx.ellipse(14, 5, 5.5, 3.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes & Mouth
+        const eyeColor = isBlack ? '#F5F3FF' : '#2E1065';
+        ctx.fillStyle = eyeColor;
+        ctx.strokeStyle = eyeColor;
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+
+        if (mood === 'dizzy') {
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillText('×', -10, -2);
+          ctx.fillText('×', 10, -2);
+          ctx.beginPath();
+          ctx.arc(0, 9, 4, Math.PI, 0);
+          ctx.stroke();
+        } else if (mood === 'eat') {
+          // Happy ^ ^ eyes
+          ctx.beginPath();
+          ctx.arc(-10, -1, 4, Math.PI, 0);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(10, -1, 4, Math.PI, 0);
+          ctx.stroke();
+          // Open happy mouth
+          ctx.fillStyle = '#F472B6';
+          ctx.beginPath();
+          ctx.arc(0, 7, 5, 0, Math.PI);
+          ctx.fill();
+        } else {
+          // Sparkly eyes
+          ctx.beginPath();
+          ctx.arc(-10, -2, 3.5, 0, Math.PI * 2);
+          ctx.arc(10, -2, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(-11, -3.2, 1.3, 0, Math.PI * 2);
+          ctx.arc(9, -3.2, 1.3, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Cute w mouth
+          ctx.strokeStyle = eyeColor;
+          ctx.beginPath();
+          ctx.arc(-3, 6, 3, 0, Math.PI);
+          ctx.arc(3, 6, 3, 0, Math.PI);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      function render() {
+        ctx.save();
+        if (state.shakeTimer > 0) {
+          const mag = 6 * (state.shakeTimer / 0.25);
+          ctx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag);
+        }
+
+        // Background gradient (Moon White & Star Purple)
+        const bg = ctx.createLinearGradient(0, 0, 0, height);
+        if (state.feverTimer > 0) {
+          bg.addColorStop(0, '#2E1065');
+          bg.addColorStop(0.55, '#6D28D9');
+          bg.addColorStop(1, '#F5F3FF');
+        } else {
+          bg.addColorStop(0, '#1E1145');
+          bg.addColorStop(0.55, '#4C1D95');
+          bg.addColorStop(1, '#EDE9FE');
+        }
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, width, height);
+
+        // Twinkling Stars
+        const nowSec = performance.now() / 1000;
+        for (const s of state.stars) {
+          const alpha = 0.35 + 0.65 * Math.abs(Math.sin(nowSec * s.speed + s.phase));
+          ctx.fillStyle = `rgba(247, 245, 255, ${alpha.toFixed(2)})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Moon-white ground ribbon
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        ctx.beginPath();
+        ctx.ellipse(width / 2, height + 18, width * 0.72, 46, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Falling items
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (const it of state.items) {
+          ctx.save();
+          ctx.translate(it.x, it.y);
+          ctx.fillStyle = it.good ? 'rgba(255, 255, 255, 0.28)' : 'rgba(251, 113, 133, 0.32)';
+          ctx.beginPath();
+          ctx.arc(0, 0, 19, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.font = '26px sans-serif';
+          ctx.fillText(it.emoji, 0, 2);
+          ctx.restore();
+        }
+
+        // Player Mascot
+        drawFandazi(
+          state.player.x,
+          state.player.y,
+          state.player.radius,
+          state.selectedChar,
+          state.player.mood
+        );
+
+        // Particles
+        for (const p of state.particles) {
+          ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // Floating Score Popups
+        ctx.font = '900 15px "Inter", sans-serif';
+        for (const pop of state.popups) {
+          ctx.globalAlpha = Math.max(0, pop.life / pop.maxLife);
+          ctx.fillStyle = pop.color;
+          ctx.strokeStyle = '#2E1065';
+          ctx.lineWidth = 3;
+          ctx.strokeText(pop.text, pop.x, pop.y);
+          ctx.fillText(pop.text, pop.x, pop.y);
+        }
+        ctx.globalAlpha = 1;
+
+        // Paused banner
+        if (state.status === 'paused') {
+          ctx.fillStyle = 'rgba(46, 16, 101, 0.55)';
+          ctx.fillRect(0, 0, width, height);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = '900 24px "Inter", sans-serif';
+          ctx.fillText('Paused · Click Resume', width / 2, height / 2);
+        }
+
+        ctx.restore();
+      }
+
+      function loop(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+        const dt = Math.min(0.05, (timestamp - lastTime) / 1000);
+        lastTime = timestamp;
+
+        update(dt);
+        render();
+        animId = requestAnimationFrame(loop);
+      }
+
+      // Event Listeners
+      charButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          ensureAudio();
+          playTone(660, 0.08, 'sine', 0.1);
+          charButtons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.selectedChar = btn.dataset.char;
+        });
+      });
+
+      startBtn.addEventListener('click', startGame);
+      restartBtn.addEventListener('click', startGame);
+
+      backHomeBtn.addEventListener('click', () => {
+        ensureAudio();
+        playTone(520, 0.08, 'sine', 0.1);
+        gameOverOverlay.classList.add('hidden');
+        startOverlay.classList.remove('hidden');
+        state.status = 'idle';
+      });
+
+      bgmBtn.addEventListener('click', () => {
+        bgmEnabled = !bgmEnabled;
+        bgmBtn.textContent = bgmEnabled ? '🎵 BGM On' : '🎵 BGM Off';
+        if (bgmEnabled) {
+          ensureAudio();
+          if (state.status === 'playing') startBgm();
+        } else {
+          stopBgm();
+        }
+      });
+
+      soundBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundBtn.textContent = soundEnabled ? '🔊 SFX On' : '🔇 SFX Off';
+        if (soundEnabled) {
+          ensureAudio();
+          playTone(740, 0.08, 'sine', 0.12);
+        }
+      });
+
+      pauseBtn.addEventListener('click', () => {
+        if (state.status === 'playing') {
+          state.status = 'paused';
+          stopBgm();
+          pauseBtn.textContent = '▶ Resume';
+        } else if (state.status === 'paused') {
+          state.status = 'playing';
+          startBgm();
+          pauseBtn.textContent = '⏸ Pause';
+        }
+      });
+
+      copyShareBtn.addEventListener('click', () => {
+        const charName = state.selectedChar === 'black' ? 'Black Buddy' : 'White Buddy';
+        const rank = getRankTitle(state.score);
+        const shareText = `💜 [Moon White & Star Purple · Meal Buddy Challenge]\nPlayer: ${state.nickname}\nBuddy: ${charName}\nScore: ${state.score} pts (Max Combo: ${state.maxCombo})\nRank: ${rank}\nJoin the fan club snack catch! 🍪✨`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(shareText).then(() => {
+            showToast('Result copied! Ready to share with the fan club!');
+          }).catch(() => fallbackCopy(shareText));
+        } else {
+          fallbackCopy(shareText);
+        }
+      });
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('Result copied! Ready to share with the fan club!');
+        } catch (e) {
+          showToast('Copy failed — please take a screenshot instead!');
+        }
+        document.body.removeChild(ta);
+      }
+
+      rankBtn.addEventListener('click', () => {
+        ensureAudio();
+        playTone(620, 0.08, 'sine', 0.1);
+        renderLeaderboard();
+        rankModal.classList.remove('hidden');
+      });
+
+      closeRankBtn.addEventListener('click', () => {
+        rankModal.classList.add('hidden');
+      });
+
+      rankModal.addEventListener('click', (e) => {
+        if (e.target === rankModal) rankModal.classList.add('hidden');
+      });
+
+      // Keyboard Controls
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+      });
+
+      // On-screen directional buttons (mouse + touch)
+      function bindHoldBtn(btn, dir) {
+        const startHold = (e) => {
+          e.preventDefault();
+          ensureAudio();
+          keys[dir] = true;
+        };
+        const endHold = () => {
+          keys[dir] = false;
+        };
+        btn.addEventListener('mousedown', startHold);
+        btn.addEventListener('touchstart', startHold, { passive: false });
+        window.addEventListener('mouseup', endHold);
+        window.addEventListener('touchend', endHold);
+        window.addEventListener('touchcancel', endHold);
+      }
+      bindHoldBtn(leftBtn, 'left');
+      bindHoldBtn(rightBtn, 'right');
+
+      // Direct pointer drag on canvas
+      function updatePointerPos(clientX) {
+        const rect = canvas.getBoundingClientRect();
+        pointerTargetX = clientX - rect.left;
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        if (state.status !== 'playing') return;
+        ensureAudio();
+        pointerActive = true;
+        updatePointerPos(e.clientX);
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (!pointerActive || state.status !== 'playing') return;
+        updatePointerPos(e.clientX);
+      });
+
+      window.addEventListener('pointerup', () => {
+        pointerActive = false;
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+
+      window.onload = function () {
+        resizeCanvas();
+        if (animId) cancelAnimationFrame(animId);
+        animId = requestAnimationFrame(loop);
+      };
+    })();
+  </script>
+</body>
+</html>
